@@ -1,0 +1,96 @@
+{
+  "name": "vscode-zotero-cite",
+  "displayName": "Zotero Citation for LaTeX",
+  "description": "Insert citations from Zotero into LaTeX documents using the native Zotero picker",
+  "version": "0.1.0",
+  "publisher": "Alkaid",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Snuffel233/vscode-zotero-cite.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Snuffel233/vscode-zotero-cite/issues"
+  },
+  "homepage": "https://github.com/Snuffel233/vscode-zotero-cite#readme",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "latex",
+    "zotero",
+    "citation",
+    "bibtex",
+    "bibliography"
+  ],
+  "activationEvents": [
+    "onLanguage:latex"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "zotero-cite.triggerManually",
+        "title": "Insert Citation from Zotero",
+        "category": "Zotero"
+      },
+      {
+        "command": "zotero-cite.selectBibFile",
+        "title": "Select .bib File",
+        "category": "Zotero"
+      },
+      {
+        "command": "zotero-cite.checkConnection",
+        "title": "Check Zotero Connection",
+        "category": "Zotero"
+      }
+    ],
+    "configuration": {
+      "title": "Zotero Citation",
+      "properties": {
+        "zotero-cite.defaultBibFile": {
+          "type": "string",
+          "default": "",
+          "description": "Default .bib file path (absolute or workspace-relative). Leave empty to be prompted each time."
+        },
+        "zotero-cite.autoAppend": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically append BibTeX entries to .bib file"
+        },
+        "zotero-cite.removeFields": {
+          "type": "array",
+          "default": ["annotation", "file"],
+          "items": {
+            "type": "string"
+          },
+          "description": "BibTeX fields to remove from exported entries (e.g., annotation, abstract, file, keywords)"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile",
+    "test": "node ./out/test/runTest.js",
+    "package": "vsce package",
+    "publish": "vsce publish"
+  },
+  "devDependencies": {
+    "@types/node": "^18.0.0",
+    "@types/vscode": "^1.80.0",
+    "@types/mocha": "^10.0.0",
+    "@types/glob": "^8.1.0",
+    "@vscode/test-electron": "^2.3.0",
+    "@vscode/vsce": "^2.22.0",
+    "typescript": "^5.0.0",
+    "mocha": "^10.2.0",
+    "glob": "^10.3.0",
+    "fast-check": "^3.13.0"
+  },
+  "dependencies": {}
+}
