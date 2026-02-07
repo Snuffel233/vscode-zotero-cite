@@ -3,7 +3,7 @@
   "displayName": "Zotero Citation for LaTeX",
   "description": "Insert citations from Zotero into LaTeX documents using the native Zotero picker",
   "version": "0.1.0",
-  "publisher": "Alkaid",
+  "publisher": "AlkaidMegrez",
   "repository": {
     "type": "git",
     "url": "https://github.com/Snuffel233/vscode-zotero-cite.git"
@@ -44,6 +44,11 @@
       {
         "command": "zotero-cite.checkConnection",
         "title": "Check Zotero Connection",
+        "category": "Zotero"
+      },
+      {
+        "command": "zotero-cite.detectDuplicates",
+        "title": "Detect Duplicates in .bib File",
         "category": "Zotero"
       }
     ],

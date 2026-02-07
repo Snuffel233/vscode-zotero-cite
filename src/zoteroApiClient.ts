@@ -106,11 +106,30 @@ export class ZoteroAPIClient {
     }
 
     /**
+     * Convert item keys to citation keys
+     * @param itemKeys Array of item keys in format [libraryID]:[itemKey] or just [itemKey]
+     * @returns Object mapping item keys to citation keys
+     */
+    async getCitationKeys(itemKeys: string[]): Promise<{ [key: string]: string }> {
+        if (itemKeys.length === 0) {
+            return {};
+        }
+
+        try {
+            const result = await this.makeRequest<{ [key: string]: string }>('item.citationkey', [itemKeys]);
+            return result;
+        } catch (error) {
+            throw new Error(`Failed to get citation keys: ${error instanceof Error ? error.message : error}`);
+        }
+    }
+
+    /**
      * Invoke Zotero's CAYW (Cite As You Write) picker
      * Returns array of selected citation keys
      */
     async invokePicker(): Promise<string[]> {
         // Use HTTP GET for CAYW endpoint with pandoc format
+        // This returns citation keys directly in format: [@key1; @key2]
         return new Promise((resolve, reject) => {
             const options: http.RequestOptions = {
                 hostname: ZOTERO_API_BASE,
@@ -181,6 +200,8 @@ export class ZoteroAPIClient {
 
     /**
      * Export BibTeX entries for given citation keys
+     * @param citationKeys Array of citation keys (not item keys)
+     * @returns BibTeX string
      */
     async exportBibTeX(citationKeys: string[]): Promise<string> {
         if (citationKeys.length === 0) {
@@ -191,7 +212,35 @@ export class ZoteroAPIClient {
             const bibtex = await this.makeRequest<string>('item.export', [citationKeys, 'Better BibTeX']);
             return bibtex;
         } catch (error) {
-            throw new Error(`Failed to export BibTeX: ${error instanceof Error ? error.message : error}`);
+            const errorMsg = error instanceof Error ? error.message : String(error);
+            
+            // If error mentions "not found", try to identify which keys are invalid
+            if (errorMsg.includes('not found')) {
+                // Try exporting keys one by one to identify valid ones
+                const validEntries: string[] = [];
+                const invalidKeys: string[] = [];
+                
+                for (const key of citationKeys) {
+                    try {
+                        const entry = await this.makeRequest<string>('item.export', [[key], 'Better BibTeX']);
+                        if (entry && entry.trim()) {
+                            validEntries.push(entry);
+                        }
+                    } catch (keyError) {
+                        invalidKeys.push(key);
+                    }
+                }
+                
+                if (validEntries.length > 0) {
+                    // Return valid entries and log invalid keys
+                    if (invalidKeys.length > 0) {
+                        console.warn(`Skipped invalid citation keys: ${invalidKeys.join(', ')}`);
+                    }
+                    return validEntries.join('\n\n');
+                }
+            }
+            
+            throw new Error(`Failed to export BibTeX: ${errorMsg}`);
         }
     }
 }
